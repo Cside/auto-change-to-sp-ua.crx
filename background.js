@@ -14,26 +14,26 @@
     });
 
     var CurrentWidth;
-    chrome.tabs.getSelected(function (tab) {
-        onFocusHandler(tab.id);
-    });
-
-    var onMessageHandler = function (width) {
+    var onMessage = function (width) {
         if (! width) return;
         CurrentWidth = width;
     };
-    var onFocusHandler = function (tabId) {
-        chrome.tabs.sendMessage(tabId, {}, onMessageHandler);
+    var onFocus = function (tabId) {
+        chrome.tabs.sendMessage(tabId, {}, onMessage);
     };
+
+    chrome.tabs.getSelected(function (tab) {
+        onFocus(tab.id);
+    });
     chrome.tabs.onActivated.addListener(function (info) {
-        onFocusHandler(info.tabId);
+        onFocus(info.tabId);
     });
     chrome.windows.onFocusChanged.addListener(function () {
         chrome.tabs.getSelected(function (tab) {
-            onFocusHandler(tab.id);
+            onFocus(tab.id);
         });
     });
-    chrome.runtime.onMessage.addListener(onMessageHandler);
+    chrome.runtime.onMessage.addListener(onMessage);
 
     chrome.webRequest.onBeforeSendHeaders.addListener(
         function (details) {
