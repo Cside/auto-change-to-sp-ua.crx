@@ -1,6 +1,12 @@
 (function() {
     var p = function() {
-        console.log(JSON.stringify(Array.prototype.slice.call(arguments, 0, arguments.length)));
+        console.log(
+            JSON.stringify(
+                Array.prototype.slice.call(arguments, 0, arguments.length),
+                null,
+                ''
+            )
+        );
     }
     var defaults = {
         ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 5_0 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Version/5.1 Mobile/9A334 Safari/7534.48.3',
@@ -23,14 +29,14 @@
     };
 
     chrome.tabs.getSelected(function (tab) {
-        onFocus(tab.id);
+        if (tab.index !== 0) onFocus(tab.id);
     });
     chrome.tabs.onActivated.addListener(function (info) {
         onFocus(info.tabId);
     });
     chrome.windows.onFocusChanged.addListener(function () {
         chrome.tabs.getSelected(function (tab) {
-            onFocus(tab.id);
+            if (tab.index !== 0) onFocus(tab.id);
         });
     });
     chrome.runtime.onMessage.addListener(onMessage);
