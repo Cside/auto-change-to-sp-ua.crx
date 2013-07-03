@@ -34,12 +34,9 @@
     };
 
     var isEnabled = false;
-    chrome.tabs.getSelected(function (tab) {
-        onFocusHandler(tab.id);
-    });
-
-    var onMessage = function (width) {
+    var onMessage = function (width, opts) {
         if (! width) return;
+        if (! opts) opts = {};
 
         var threshold = localStorage.width;
         var isEnabledCurrent = width < threshold;
@@ -47,21 +44,25 @@
 
         isEnabled = isEnabledCurrent;
 
-        notify(isEnabled ? "smartphone" : "PC");
+        if (! opts.noNotifications)
+            notify(isEnabled ? "smartphone" : "PC");
     };
-    var onFocus = function (tabId) {
-        chrome.tabs.sendMessage(tabId, {}, onMessage);
+    var onFocus = function (tabId, opts) {
+        chrome.tabs.sendMessage(tabId, {}, function (width) { onMessage(width, opts) });
     };
 
     chrome.tabs.getSelected(function (tab) {
-        if (tab.index !== 0) onFocus(tab.id);
+        onFocus(tab.id);
+    });
+    chrome.tabs.getSelected(function (tab) {
+        onFocus(tab.id);
     });
     chrome.tabs.onActivated.addListener(function (info) {
         onFocus(info.tabId);
     });
     chrome.windows.onFocusChanged.addListener(function () {
         chrome.tabs.getSelected(function (tab) {
-            if (tab.index !== 0) onFocus(tab.id);
+            onFocus(tab.id, { noNotifications: true });
         });
     });
     chrome.runtime.onMessage.addListener(onMessage);
