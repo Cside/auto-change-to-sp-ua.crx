@@ -13,6 +13,20 @@
         }
     });
 
+    var notify = function(message) {
+        var notification = webkitNotifications.createNotification(
+            chrome.extension.getURL('images/icon48.png'),
+            "Auto Change to Smartphone's UserAgent",
+            message
+        )
+
+        notification.show();
+
+        setTimeout(function() {
+            notification.close();
+        }, 3000);
+    };
+
     var isEnabled = false;
     chrome.tabs.getSelected(function (tab) {
         onFocusHandler(tab.id);
@@ -26,6 +40,8 @@
         if (isEnabled == isEnabledCurrent) return;
 
         isEnabled = isEnabledCurrent;
+
+        notify(isEnabled ? "smartphone" : "PC");
     };
     var onFocusHandler = function (tabId) {
         chrome.tabs.sendMessage(tabId, {}, onMessageHandler);
