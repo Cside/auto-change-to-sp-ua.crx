@@ -13,14 +13,19 @@
         }
     });
 
-    var CurrentWidth;
+    var isEnabled = false;
     chrome.tabs.getSelected(function (tab) {
         onFocusHandler(tab.id);
     });
 
     var onMessageHandler = function (width) {
         if (! width) return;
-        CurrentWidth = width;
+
+        var threshold = localStorage.width;
+        var isEnabledCurrent = width < threshold;
+        if (isEnabled == isEnabledCurrent) return;
+
+        isEnabled = isEnabledCurrent;
     };
     var onFocusHandler = function (tabId) {
         chrome.tabs.sendMessage(tabId, {}, onMessageHandler);
@@ -37,9 +42,8 @@
 
     chrome.webRequest.onBeforeSendHeaders.addListener(
         function (details) {
-            var threshold = localStorage.width;
             // p({ current: CurrentWidth, threshold: threshold });
-            if (CurrentWidth <= threshold) {
+            if (isEnabled) {
                 for (var i = 0, l = details.requestHeaders.length; i < l; ++i) {
                     if (details.requestHeaders[i].name === 'User-Agent') {
                         details.requestHeaders[i].value = localStorage.ua;
