@@ -13,7 +13,15 @@
     "manifest_version": 2,
     "minimum_chrome_version": "17.0",
     "name": "Auto Change to Smartphone's UserAgent",
-    "permissions": [ "webRequest", "webRequestBlocking", "\u003Call_urls\u003E" ],
+    "permissions": [ "webRequest", "webRequestBlocking", "\u003Call_urls\u003E", "notifications"],
+    "icons" : {
+        "16" : "images/icon16.png",
+        "48" : "images/icon48.png",
+        "128" : "images/icon128.png"
+    },
+    "web_accessible_resources": [
+        "images/icon48.png"
+    ],
     "update_url": "http://clients2.google.com/service/update2/crx",
     "version": "0.3"
 }

@@ -13,14 +13,35 @@
         }
     });
 
-    var CurrentWidth;
+    var notify = function(message) {
+        var notification = webkitNotifications.createNotification(
+            chrome.extension.getURL('images/icon48.png'),
+            "Auto Change to Smartphone's UserAgent",
+            message
+        )
+
+        notification.show();
+
+        setTimeout(function() {
+            notification.close();
+        }, 3000);
+    };
+
+    var isEnabled = false;
     chrome.tabs.getSelected(function (tab) {
         onFocusHandler(tab.id);
     });
 
     var onMessageHandler = function (width) {
         if (! width) return;
-        CurrentWidth = width;
+
+        var threshold = localStorage.width;
+        var isEnabledCurrent = width < threshold;
+        if (isEnabled == isEnabledCurrent) return;
+
+        isEnabled = isEnabledCurrent;
+
+        notify(isEnabled ? "smartphone" : "PC");
     };
     var onFocusHandler = function (tabId) {
         chrome.tabs.sendMessage(tabId, {}, onMessageHandler);
@@ -37,9 +58,8 @@
 
     chrome.webRequest.onBeforeSendHeaders.addListener(
         function (details) {
-            var threshold = localStorage.width;
             // p({ current: CurrentWidth, threshold: threshold });
-            if (CurrentWidth <= threshold) {
+            if (isEnabled) {
                 for (var i = 0, l = details.requestHeaders.length; i < l; ++i) {
                     if (details.requestHeaders[i].name === 'User-Agent') {
                         details.requestHeaders[i].value = localStorage.ua;
